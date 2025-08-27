@@ -1,1 +1,148 @@
-# Dog-Movement-Recognition
+# Dog Behavior Classifier – Training and Evaluation Report
+
+This report summarizes the training progress and final performance of the hybrid deep learning model used to classify dog behaviors from neck-mounted sensor data.
+
+## Training Summary
+
+We trained a hybrid deep learning model using CNN + LSTM for sequential data and dense layers for dog metadata (age, breed, weight, etc.).  
+The model was trained for 20 epochs with the following trends:
+
+
+##  1. Training Performance (Across Epochs)
+
+| Epoch | Train Accuracy | Val Accuracy | Train Loss | Val Loss |
+|-------|----------------|--------------|------------|----------|
+| 1     | 0.7955         | 0.5348       | 0.5761     | 1.3343   |
+| 5     | 0.9336         | 0.7166       | 0.1938     | 0.6807   |
+| 10    | 0.9526         | 0.7556       | 0.1362     | 0.6201   |
+| 15    | 0.9603         | 0.7510       | 0.1137     | 0.6217   |
+| 20    | 0.9647         | 0.8386       | 0.1010     | 0.4200   |
+
+The validation accuracy started low but improved significantly from epoch 5 to 20.  
+The biggest improvement occurred between epochs 13 and 20.
+
+**Final Training Accuracy:** 96.5%  
+**Final Validation Accuracy:** ~83.9%
+
+
+##  2. Test Set Performance
+
+After training, the model was evaluated on a completely separate test set.
+
+**Accuracy:** **91.2%**
+**Total examples tested:** **52,454**
+
+The model correctly predicted the behavior 91.2% of the time.
+
+
+### Classification Report (Top 10 Selected)
+
+| Behavior         | Precision | Recall | F1-score | Support |
+|------------------|-----------|--------|----------|---------|
+| Sniffing         | 0.98      | 0.99   | 0.99     | 8207    |
+| Walking          | 0.94      | 0.95   | 0.94     | 5831    |
+| Lying chest      | 0.94      | 0.94   | 0.94     | 8250    |
+| Eating           | 0.63      | 0.81   | 0.71     | 1331    |
+| Sitting          | 0.89      | 0.80   | 0.84     | 4076    |
+| Playing          | 0.94      | 0.92   | 0.93     | 6901    |
+| Panting          | 0.83      | 0.89   | 0.86     | 6687    |
+| Drinking         | 0.92      | 0.98   | 0.95     | 518     |
+| Tugging          | 0.53      | 0.52   | 0.53     | 109     |
+| Galloping        | 0.65      | 0.77   | 0.71     | 87      |
+
+- **Sniffing**: Excellent performance (F1 ~0.99)
+- **Walking, Playing, Lying Chest**: Very high accuracy and balance
+- **Eating**: Improved due to balancing, but still room for enhancement
+- **Low-support behaviors** (e.g., Bowing, Tugging): Lower metrics due to fewer examples
+
+
+### Confusion Matrix
+
+A confusion matrix was generated and visualized.  
+This confusion matrix compares:
+
+Actual behavior (rows)
+
+Predicted behavior (columns)
+
+Each cell shows the number of samples predicted as a certain behavior.
+
+**Interpretation of the confusion matrix**
+Well-Classified Behaviors:
+Sniffing
+→ 8091 correct out of 8207 samples
+→ Very low confusion with other classes
+→ High precision and recall (F1 ~0.99)
+
+Lying chest
+→ 7767 correct out of 8250
+→ Occasional confusion with Standing (192) and Sitting (103)
+
+Playing
+→ 6383 correct out of 6901
+→ Some overlap with Panting (230) and Sniffing (101) — behaviorally reasonable
+
+Walking
+→ 5511 correct out of 5831
+→ Slight misclassifications as Panting, Trotting, and Sniffing
+
+Partially Confused Behaviors:
+Eating
+→ 1075 correct
+→ Confused with Panting (109), Sniffing (54), Sitting (130)
+→ Likely due to similar neck motions when chewing or lowering head
+
+Panting
+→ 5972 correct
+→ Misclassified as Playing (230), Sniffing (154), or Eating
+
+Sitting
+→ 3250 correct
+→ 130 misclassified as Eating, 123 as Lying chest
+
+Standing
+→ 2653 correct
+→ 208 confused with Eating, 127 with Sitting
+
+Low Support Behaviors:
+These behaviors had fewer training examples, so the model struggled more:
+
+Bowing (4 total):
+→ 3 correctly predicted
+→ One mistaken for Lying chest
+
+Tugging (109 total):
+→ 57 correct
+→ Some confused with Sitting, Trotting, or Playing
+
+Galloping, Jumping, Carrying object
+→ Mixed accuracy due to limited data
+→ Need more training samples for these behaviors
+
+
+## Key Strengths of the Model (CNN-LSTM Hybrid Model)
+
+- Used neck sensor data only, as requested
+- Combined motion signals with dog metadata
+- Balanced rare behavior classes with sampling
+- Trained using CNN-LSTM hybrid architecture
+
+
+## Files Saved
+
+| File                      | Description                        |
+|---------------------------|------------------------------------|
+| `dog_movement_model.h5`   | Final trained hybrid model         |
+| `labelencoder.pkl`        | Label encoder for class names      |
+| `scaler_seq.pkl`          | Scaler for neck sensor sequence    |
+| `scaler_meta.pkl`         | Scaler for dog metadata            |
+
+
+
+## Final Notes
+
+- The model achieved high accuracy across diverse behaviors
+- The prediction script and saved model are ready for real-world use
+-  Future improvements could include:
+  - More rare behavior samples
+
